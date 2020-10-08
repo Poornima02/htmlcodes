@@ -1,0 +1,166 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui" template="/pages/template/template.xhtml">
+    
+     <ui:define name="head">
+     <f:loadBundle basename="com.erp.propertymessage.sales" var="currencymaster"/>
+        <style type="text/css">
+          	.twoCol1{width: 25%;text-align: right;}.twoCol2{width: 75%;text-align: left;}
+        </style>
+        <script type="text/javascript">
+	        window.onload = function(){
+	        	dataTableSize();
+	        }
+	        function dataTableSize(){
+		        var h = window.innerHeight;
+		        var k=h-270;
+	        	jQuery('#mainform\\:datatable .ui-datatable-scrollable-body').css("height",k);
+	        }
+	        function openExcelSheet(fileName){
+	        	window.open("/SUKISAIFeeWebApp/report/erpReportService?fileName="+fileName);
+	        }
+	        function openPDFDocument(fileName){
+	        	window.open("/SUKISAIFeeWebApp/report/erpReportService?fileName="+fileName+"&amp;rptType=PDF");
+	        }
+        </script>
+     </ui:define>
+        
+  <ui:define name="content">
+    <h:form id="mainform">
+    <p:growl id="messages" showDetail="true" />
+   		 <div class="ui-grid ui-grid-responsive headerdiv">
+			<div class="ui-grid-col-8" align="center">
+				<h:panelGrid columns="7" columnClasses="col1" cellspacing="5">
+					<p:outputLabel value="#{currencymaster.localcurrency}" />
+					<p:inputText value="#{commonMBean.localCurrency}"  readonly="true" styleClass="inputwidth100 textaligncenter" />
+				</h:panelGrid>
+			</div>
+			<div class="ui-grid-col-4" align="right">
+				<h:panelGrid columns="7" columnClasses="col1" cellspacing="5">
+					<p:outputLabel value="#{currencymaster.searchby}" />
+					<p:selectOneMenu value="#{commonMBean.searchColName}" title="#{commonMBean.searchByColName}" styleClass="dropwidth85">
+						<f:selectItem itemLabel="-Select-" itemValue="-Select-" />
+		     	 		<f:selectItem itemLabel="Currency Code" itemValue="currencyCode" />
+		     	 		<f:selectItem itemLabel="Currency Name" itemValue="currencyName" />
+		     	 		<f:selectItem itemLabel="Country" itemValue="country" />
+		     	 	</p:selectOneMenu>
+	     	 		<p:inputText value="#{commonMBean.searchColValue}" placeholder="Search Text Here" styleClass="inputwidth100 textaligncenter" />
+					<p:commandButton title="Get Details" action="#{commonMBean.loadCurrencyMasterSearch}" icon="fa fa-fw fa-search" styleClass="searchbtn"	disabled="#{commonMBean.isReadForDisable(416)}" update="mainform" oncomplete="dataTableSize()" />
+				<p:commandButton tabindex="5" icon="fa fa-fw fa-file-excel-o" title="Excel" styleClass="searchbtn" action="#{commonMBean.createExcelcurrencyMaster}"  > 
+			</p:commandButton>
+				</h:panelGrid>
+			</div>
+		</div>
+		
+		<p:dataTable var="item" value="#{commonMBean.currencyMasterList}" rowKey="#{item.rowId}" selection="#{commonMBean.selectedCurrencyMasterList}" id="datatable" scrollable="true" 
+     	 		paginatorPosition="bottom" scrollWidth="100%" paginator="true" rows="20" currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+     	 		paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+     	 		styleClass="fixed-size" rowIndexVar="currentRow">
+     	 			<h:inputHidden value="#{currentRow}" id="currentRowId" />
+     	 		   <p:column selectionMode="multiple" styleClass="textaligncenter" width="3%" />
+                   <p:column headerText="#{currencymaster.currencycode}" width="6%" styleClass="textaligncenter">
+                       <p:commandLink value="#{item.currencyCode}" title="#{item.currencyName}" actionListener="#{commonMBean.editCurrencyMasterAction}" update="commonform" />
+                   </p:column>
+                   <p:column headerText="#{currencymaster.currencyname}" width="10%">
+                       <p:commandLink value="#{item.currencyName}" title="#{item.currencyName}" actionListener="#{commonMBean.editCurrencyMasterAction}" update="commonform" />
+                   </p:column>
+                     <p:column headerText="#{currencymaster.country}" width="10%">
+                       <p:commandLink value="#{item.country}" title="#{item.currencyName}" actionListener="#{commonMBean.editCurrencyMasterAction}" update="commonform" />
+                   </p:column>
+                  
+                   <p:column headerText="#{currencymaster.exchangerate} (#{commonMBean.localCurrency})" width="8%" styleClass="textaligncenter">
+                       <h:outputText value="#{item.currencyValue}" title="#{item.currencyValue}">
+                       <f:convertNumber pattern="#0.0000"/>
+                       </h:outputText>
+                   </p:column>
+                   <p:column headerText="#{currencymaster.createdby}" width="7%" styleClass="textaligncenter">
+                       <h:outputText value="#{item.createUserId}" title="#{item.createUserId}">
+                       		<f:convertDateTime pattern="#{calendarBean.pattern}" timeZone="#{calendarBean.timeZone}" />
+                       </h:outputText>
+                   </p:column>
+                   <p:column headerText="#{currencymaster.createddt}" width="5%" styleClass="textaligncenter">
+                       <h:outputText value="#{item.createdDt}" title="#{item.createdDt}">
+                       		<f:convertDateTime pattern="#{calendarBean.pattern}" timeZone="#{calendarBean.timeZone}" />
+                       </h:outputText>
+                   </p:column>
+                   <p:column headerText="#{currencymaster.lastupdateby}" width="7%" styleClass="textaligncenter">
+                       <h:outputText value="#{item.lstUpdtUserId}" title="#{item.lstUpdtUserId}">
+                       		<f:convertDateTime pattern="#{calendarBean.pattern}" timeZone="#{calendarBean.timeZone}" />
+                       </h:outputText>
+                   </p:column>
+                   <p:column headerText="#{currencymaster.lastupdatedt}" width="5%" styleClass="textaligncenter">
+                       <h:outputText value="#{item.lstUpdtDt}" title="#{item.lstUpdtDt}">
+                       		<f:convertDateTime pattern="#{calendarBean.pattern}" timeZone="#{calendarBean.timeZone}" />
+                       </h:outputText>
+                   </p:column>
+          </p:dataTable>
+     	  <div class="ui-g-12">
+     	  		<div class="ui-g-6" align="left">
+     	  			<h:panelGrid columns="4">
+     	  				<p:commandButton value="#{currencymaster.delete}" icon="fa fa-fw fa-trash" action="#{commonMBean.deleteCurrencyDetailList}"
+     	  					disabled="#{commonMBean.isDeleteForDisable(606) or !commonMBean.isSpecialPermissionOneForRender(606)}" update="mainform" oncomplete="dataTableSize()" />
+     	  			</h:panelGrid>
+     	  		</div>
+     	  		<div class="ui-g-6" align="right">
+     	  			<h:panelGrid columns="4">
+     	  				<p:commandButton value="#{currencymaster.edit}" icon="fa fa-fw fa-edit" action="#{commonMBean.editCurrencyMaster}"
+     	  					disabled="#{commonMBean.isWriteForDisable(606)}" update="mainform,commonform" oncomplete="dataTableSize()" />
+     	  				<p:commandButton value="#{currencymaster.add}" icon="fa fa-fw fa-plus" action="#{commonMBean.addNewCurrencyMaster}"
+     	  					disabled="#{commonMBean.isWriteForDisable(606)}" update="commonform" oncomplete="dataTableSize()">
+     	  					<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+     	  				</p:commandButton>
+     	  			</h:panelGrid>
+     	  		</div>
+     	  </div>
+		</h:form>
+		<p:dialog widgetVar="currencydlg" header="Currency Master Details" modal="true" closeOnEscape="true" width="40%" height="220">
+     	<h:form id="commonform">
+	     		<p:panelGrid layout="grid" columns="2" columnClasses="twoCol1,twoCol2" style="width:100%;">
+	     			<h:outputText value="#{currencymaster.currencycode}" title="Currency Code" styleClass="required" />
+	     			<p:inputText value="#{commonMBean.currencyMaster.currencyCode}" maxlength="20" title="#{commonMBean.currencyMaster.currencyName}"   styleClass="inputwidth100 textaligncenter" />
+	     			
+	     			<h:outputText value="#{currencymaster.currencyname}" title="Currency Name" styleClass="required" />
+	     			<p:inputText value="#{commonMBean.currencyMaster.currencyName}" maxlength="50" title="#{commonMBean.currencyMaster.currencyName}"   styleClass="inputwidth100 textaligncenter" />
+	     				
+	     			<h:outputText value="#{currencymaster.country}" title="Country" styleClass="required"/>
+	     			<p:inputText value="#{commonMBean.currencyMaster.country}" maxlength="50" title="#{commonMBean.currencyMaster.country}"   styleClass="inputwidth100 textaligncenter" />
+	     		     				     			
+     	 			<h:outputText value="#{currencymaster.exchangerate}" title="Exchange Rate" styleClass="required"/>
+	     			<p:inputText value="#{commonMBean.currencyMaster.currencyValue}" title="#{commonMBean.currencyMaster.currencyValue}" maxlength="100" styleClass="inputwidth100 textaligncenter">
+	     				<f:convertNumber pattern="#0.000" />
+	     			</p:inputText>
+	     		</p:panelGrid>
+	     		<div class="ui-g-12" style="margin-top:10px;">
+	     			<div class="ui-g-6">
+	     				<h:panelGrid columns="2" cellspacing="5">
+		     				<p:commandButton value="#{currencymaster.delete}" icon="fa fa-fw fa-trash" action="#{commonMBean.deleteCurrencyDetail}"
+		     					disabled="#{commonMBean.isDeleteForDisable(606) or !commonMBean.isSpecialPermissionOneForRender(606)}" update="commonform,mainform" oncomplete="dataTableSize()"  />
+	     	  			</h:panelGrid>
+	     			</div>
+	     			<div class="ui-g-6" align="right">
+		     			<h:panelGrid columns="2" cellspacing="5">
+		     				<p:commandButton value="#{currencymaster.clear}" icon="fa fa-fw fa-eraser" action="#{commonMBean.clearCurrencyDetail}" update="commonform,mainform" oncomplete="dataTableSize()" />
+	     	  				<p:commandButton value="#{currencymaster.save}" icon="fa fa-fw fa-save" action="#{commonMBean.saveUpdateCurrency}" 
+	     	  					disabled="#{commonMBean.isWriteForDisable(606)}" update="commonform,mainform" oncomplete="dataTableSize()" />
+	     	  			</h:panelGrid>
+	     			</div>
+	     		</div>
+    	</h:form>
+     </p:dialog>
+     <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loder.gif" width="140" height="140" />
+	</p:dialog>
+	
+	<p:dialog  style="color: black"   header="CONFIRM DIALOG"  widgetVar="confDlg"  modal="true" height="100" width="30%"  >
+	<h:form id="confDlgFrm" >
+  	<p:growl id="messages" showDetail="true"  />	
+  		<p:outputLabel value="Are you sure want to delete?" style="color:#f18732;font-weight:bold;font-size:14px;margin-top:25px;margin-left:80px;" />
+  		<h:panelGrid columns="2" style="text-align:center;margin-top:15px;margin-left:110px;">	
+  		<p:commandButton value="Yes" styleClass="btnicon" icon="ui-icon-check" action="#{commonMBean.deleteCurrencyDetail}" 
+  		 oncomplete="PF('metdel').hide();" update="commonform,mainform" />
+        <p:commandButton value="No"  styleClass="btnicon" icon="ui-icon-close" oncomplete="PF('metdel').hide();" />
+        </h:panelGrid>
+  </h:form>
+  </p:dialog>
+	
+  </ui:define>
+  </ui:composition>
